@@ -1,0 +1,1 @@
+((e,n,i)=>{"use strict";const t=n.tfId("cancel-comment-reply-link").closest("#comments");if(t){const n=function(){this.tfOff("focusin pointerenter",n,{once:!0,passive:!0}),e.loadJs(i.commentUrl,!!window.addComment,i.wp)};t.tfOn("focusin pointerenter",n,{once:!0,passive:!0})}})(Themify,document,themify_vars);

@@ -3,8 +3,8 @@ from pathlib import Path
 from urllib.parse import urlparse, urljoin, unquote, quote
 from playwright.sync_api import sync_playwright
 
-URL = "https://www.parametris.com/kontak/"
-OUT = Path("parametris.com/pages/kontak")
+URL = "https://www.parametris.com/creo-schematics/"
+OUT = Path("parametris.com/pages/posting/creo-schematics/")
 ASSETS = OUT / "assets"
 OUT.mkdir(exist_ok=True)
 
