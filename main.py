@@ -8,7 +8,7 @@ OUT = Path("parametris.com/pages/kontak")
 ASSETS = OUT / "assets"
 OUT.mkdir(exist_ok=True)
 
-saved = {}  # url asli -> Path file lokal
+saved = {}  
 KEEP = {"stylesheet", "script", "image", "font", "media"}
 
 
@@ -59,7 +59,6 @@ with sync_playwright() as p:
     page.goto(URL, wait_until="load", timeout=60000)
     page.wait_for_load_state("networkidle")
 
-    # scroll agar lazy-load termuat
     last = 0
     while True:
         page.mouse.wheel(0, 2000)
@@ -72,7 +71,6 @@ with sync_playwright() as p:
     page.wait_for_load_state("networkidle")
     page.wait_for_timeout(2000)
 
-    # download aset yang hanya ada di atribut data-* (mis. slider)
     lazy = page.evaluate("""() => {
         const attrs = ['data-lazyload','data-src','data-src-rs-ref','data-thumb'];
         const out = new Set();
@@ -94,7 +92,6 @@ with sync_playwright() as p:
     base_url = page.url
     browser.close()
 
-# ---------- Tulis ulang url() dan @import di file CSS ----------
 for url, f in list(saved.items()):
     if f.suffix.lower() != ".css":
         continue
@@ -113,7 +110,6 @@ for url, f in list(saved.items()):
     css = re.sub(r"""(@import\s+['"])([^'"]+)(['"])""", fix, css)
     f.write_text(css, encoding="utf-8")
 
-# ---------- Tulis ulang URL di HTML ----------
 index = OUT / "index.html"
 mapping = {}
 for url, f in saved.items():
@@ -122,12 +118,11 @@ for url, f in saved.items():
     for v in {url, no_scheme}:
         mapping[v] = r
         mapping[v.replace("&", "&amp;")] = r
-        mapping[v.replace("/", "\\/")] = r  # versi JSON-escaped
+        mapping[v.replace("/", "\\/")] = r  
 
 pattern = re.compile("|".join(re.escape(k) for k in sorted(mapping, key=len, reverse=True)))
 html = pattern.sub(lambda m: mapping[m.group(0)], html)
 
-# path relatif root, mis. "/wp-content/..."
 origin_host = urlparse(base_url).netloc
 for url, f in saved.items():
     pu = urlparse(url)
@@ -135,7 +130,6 @@ for url, f in saved.items():
         path = pu.path + (f"?{pu.query}" if pu.query else "")
         html = re.sub(r"""(?<=["'(,=\s])""" + re.escape(path), rel(index, f), html)
 
-# integrity akan gagal karena file sudah dimodifikasi
 html = re.sub(r'\s(integrity|crossorigin)="[^"]*"', "", html)
 
 index.write_text(html, encoding="utf-8")
